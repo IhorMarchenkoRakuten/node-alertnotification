@@ -62,15 +62,23 @@ This library supports sending alert as email and as message card to Ms Teams' ch
 
 ## Usage
 
-```javascript
+### Imports
+
+```js
+// javascript
+const Notifier = require('node-alertnotification');
+
+// typescript
+import Notifier from 'node-alertnotification';
+```
+### Send notification
+```js
 // All required configurations must be loaded to environment.
 
-const Notify = require('node-alertnotification');
-
  //Create New Notify
- let notify = new Notify(new EvalError('Test notify 001'), [new EvalError('Test notify 001'), new EvalError('Test notify 002')])
+const notifier = new Notifier(new EvalError('Test notify 001'), [new EvalError('Test notify 001'), new EvalError('Test notify 002')])
 
  //Send notification
-notify.send();
+notifier.send();
 
 ```
