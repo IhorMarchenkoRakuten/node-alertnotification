@@ -1,8 +1,20 @@
 const dotenv = require('dotenv').config();
 const axios = require('axios');
-jest.mock('axios');
+const { rest } = require('msw');
+const { setupServer } = require('msw/node');
 
 const MsTeamsMessageCard = require('../lib/ms_teams');
+
+const mockServer = setupServer(
+    rest.post(process.env.MS_TEAMS_WEBHOOK, (req, res, ctx) => {
+        return res(ctx.json({
+            status: 200,
+        }))
+    })
+)
+
+beforeAll(() => mockServer.listen())
+afterAll(() => mockServer.close())
 
 test('should create object', () => {
     let err = new Error("Test MsTeams")
@@ -12,13 +24,11 @@ test('should create object', () => {
     expect(msTeamsCard.messageCard["@type"]).toBe("MessageCard")
     expect(msTeamsCard.messageCard.themeColor).toBe(process.env.ALERT_THEME_COLOR)
     expect(msTeamsCard.messageCard.title).toBe(process.env.ALERT_CARD_SUBJECT)
-
 })
 
 test('should sending message card ', async() => {
-    let resp = { 'status': 200, };
-    axios.post.mockResolvedValue(resp);
     let err = new Error("Test MsTeams");
-    let msTeamsCard = new MsTeamsMessageCard(err)
-    msTeamsCard.sendMessageCard().then(status => expect(status).toBe(resp.status))
+    let msTeamsCard = new MsTeamsMessageCard(err);
+    const status = await msTeamsCard.sendMessageCard();
+    expect(status).toBe(200);
 })
